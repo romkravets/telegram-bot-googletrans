@@ -1,0 +1,5 @@
+python-telegram-bot==20.8
+deep-translator
+python-dotenv
+fastapi
+python-telegram-bot[rate-limiter]
