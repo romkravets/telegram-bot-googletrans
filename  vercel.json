@@ -1,12 +1,13 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "apt/main.py", "use": "@vercel/python" }
-  ],
+  "functions": {
+    "api/webhook.py": {
+      "runtime": "python3.9"
+    }
+  },
   "routes": [
     {
-      "src": "/.*",
-      "dest": "api/main.py"
+      "src": "/",
+      "dest": "/api/webhook.py"
     }
   ]
 }

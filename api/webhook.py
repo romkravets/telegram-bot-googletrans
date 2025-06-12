@@ -1,19 +1,19 @@
-from fastapi import FastAPI, Request
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram import Update, ReplyKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from deep_translator import GoogleTranslator
-from telegram.ext import get_application
-
-import os
+from fastapi import FastAPI, Request
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+app = FastAPI()
+
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 translator = GoogleTranslator(source="auto", target="en")
 user_languages = {}
 
-app = FastAPI()
-telegram_app = ApplicationBuilder().token(TOKEN).build()
+telegram_app = Application.builder().token(BOT_TOKEN).build()
 
 
 @telegram_app.command_handler("start")
@@ -52,7 +52,8 @@ async def translate_forwarded_message(update: Update, context: ContextTypes.DEFA
         await update.message.reply_text("Спочатку виберіть мову через /start.")
 
 @app.post("/")
-async def webhook(request: Request):
-    update = Update.de_json(await request.json(), telegram_app.bot)
+async def telegram_webhook(request: Request):
+    update_data = await request.json()
+    update = Update.de_json(update_data, telegram_app.bot)
     await telegram_app.process_update(update)
     return {"ok": True}
