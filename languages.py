@@ -1,7 +1,15 @@
-from typing import Optional
+from typing import Optional, TypedDict
+
+
+class LanguageInfo(TypedDict):
+    name: str
+    flag: str
+    deepl: str | None
+    google: str
+
 
 # deepl=None means language is Google-only (DeepL doesn't support it)
-LANGUAGES: dict[str, dict] = {
+LANGUAGES: dict[str, LanguageInfo] = {
     "uk": {"name": "Ukrainian",  "flag": "🇺🇦", "deepl": "UK",    "google": "uk"},
     "en": {"name": "English",    "flag": "🇬🇧", "deepl": "EN-GB", "google": "en"},
     "de": {"name": "German",     "flag": "🇩🇪", "deepl": "DE",    "google": "de"},
@@ -27,7 +35,7 @@ LANGUAGES: dict[str, dict] = {
     "el": {"name": "Greek",      "flag": "🇬🇷", "deepl": "EL",    "google": "el"},
     "tr": {"name": "Turkish",    "flag": "🇹🇷", "deepl": "TR",    "google": "tr"},
     "id": {"name": "Indonesian", "flag": "🇮🇩", "deepl": "ID",    "google": "id"},
-    "nb": {"name": "Norwegian",  "flag": "🇳🇴", "deepl": "NB",    "google": "no"},
+    "nb": {"name": "Norwegian",  "flag": "🇳🇴", "deepl": "NB",    "google": "no"},  # nb=Bokmål; "no" also found via name prefix
     # Google-only languages
     "hi": {"name": "Hindi",      "flag": "🇮🇳", "deepl": None,    "google": "hi"},
     "vi": {"name": "Vietnamese", "flag": "🇻🇳", "deepl": None,    "google": "vi"},
@@ -36,11 +44,14 @@ LANGUAGES: dict[str, dict] = {
     "fa": {"name": "Persian",    "flag": "🇮🇷", "deepl": None,    "google": "fa"},
 }
 
-TOP_10_CODES = ["uk", "en", "de", "fr", "es", "it", "pl", "pt", "zh", "ja"]
+TOP_10_CODES: list[str] = ["uk", "en", "de", "fr", "es", "it", "pl", "pt", "zh", "ja"]
 
 
 def search_language(query: str) -> Optional[str]:
+    """Return ISO code for query (exact code or name prefix, case-insensitive). None if not found."""
     q = query.strip().lower()
+    if not q:
+        return None
     for code, info in LANGUAGES.items():
         if code == q or info["name"].lower().startswith(q):
             return code

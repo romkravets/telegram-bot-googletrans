@@ -30,3 +30,13 @@ def test_language_has_required_fields():
         assert "flag" in info, f"{code} missing 'flag'"
         assert "deepl" in info, f"{code} missing 'deepl'"
         assert "google" in info, f"{code} missing 'google'"
+
+def test_search_empty_query_returns_none():
+    assert search_language("") is None
+
+def test_search_whitespace_query_returns_none():
+    assert search_language("   ") is None
+
+def test_google_only_language_has_deepl_none():
+    assert LANGUAGES["hi"]["deepl"] is None
+    assert LANGUAGES["vi"]["deepl"] is None
