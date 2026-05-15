@@ -76,6 +76,10 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     query = update.callback_query
     await query.answer()
 
+    if not update.effective_user:
+        await query.edit_message_text("❌ Cannot identify user.")
+        return
+
     if query.data == "lang:search":
         await query.edit_message_text(
             "Type the language name:\n`/lang Arabic` or `/lang Hindi`",
@@ -83,7 +87,7 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         )
         return
 
-    code = query.data.split(":")[1]
+    code = query.data.removeprefix("lang:")
     if code in LANGUAGES:
         set_language(update.effective_user.id, code, DB_PATH)
         info = LANGUAGES[code]
@@ -91,3 +95,5 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             f"✅ Language set to {info['flag']} {info['name']}\n\n"
             "Now send me any text or photo to translate!"
         )
+    else:
+        await query.edit_message_text("❌ Unknown language. Use /lang to choose again.")
