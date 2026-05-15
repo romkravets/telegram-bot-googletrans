@@ -13,17 +13,13 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
 DB_PATH = os.getenv("DB_PATH", "./data/translate_bot.db")
 
-if not BOT_TOKEN:
-    print("ERROR: BOT_TOKEN not set in .env", file=sys.stderr)
-    sys.exit(1)
-
-if not DEEPL_API_KEY:
-    print("WARNING: DEEPL_API_KEY not set — using Google Translate only", file=sys.stderr)
-
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     level=logging.INFO
 )
+
+if not DEEPL_API_KEY:
+    logging.warning("DEEPL_API_KEY not set — using Google Translate only")
 
 from db.storage import init_db
 from handlers.start import start_command, lang_command, help_command, language_callback
@@ -32,6 +28,9 @@ from handlers.photo import photo_handler
 
 
 def main() -> None:
+    if not BOT_TOKEN:
+        raise RuntimeError("BOT_TOKEN not set in .env")
+
     os.makedirs(os.path.dirname(DB_PATH) or ".", exist_ok=True)
     init_db(DB_PATH)
 
@@ -53,4 +52,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except RuntimeError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
