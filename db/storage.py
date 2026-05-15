@@ -1,7 +1,11 @@
+import os
 import sqlite3
 
 
 def init_db(db_path: str) -> None:
+    dir_path = os.path.dirname(db_path)
+    if dir_path:
+        os.makedirs(dir_path, exist_ok=True)
     with sqlite3.connect(db_path) as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS user_settings (
@@ -10,7 +14,6 @@ def init_db(db_path: str) -> None:
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        conn.commit()
 
 
 def get_language(user_id: int, db_path: str) -> str:
@@ -30,4 +33,3 @@ def set_language(user_id: int, lang_code: str, db_path: str) -> None:
                 language = excluded.language,
                 updated_at = CURRENT_TIMESTAMP
         """, (user_id, lang_code))
-        conn.commit()

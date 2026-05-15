@@ -3,7 +3,8 @@ import os
 from db.storage import init_db, get_language, set_language
 
 def make_db():
-    tmp = tempfile.mktemp(suffix=".db")
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
     init_db(tmp)
     return tmp
 
