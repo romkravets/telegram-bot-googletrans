@@ -2,6 +2,7 @@ import logging
 import os
 import tempfile
 from telegram import Update
+from telegram.helpers import escape_markdown
 from telegram.ext import ContextTypes
 from db.storage import get_language
 from languages import LANGUAGES
@@ -23,6 +24,7 @@ async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     photo = update.message.photo[-1]  # largest available resolution
 
+    # file closed immediately so PTB can write to it via download_to_drive
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
         tmp_path = f.name
 
@@ -39,9 +41,11 @@ async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         lang_info = LANGUAGES.get(lang_code, LANGUAGES["en"])
 
         translated = translate(text, lang_info)
+        safe_text = escape_markdown(text, version=2)
+        safe_translated = escape_markdown(translated, version=2)
         await update.message.reply_text(
-            f"📝 *Extracted:*\n{text}\n\n🌐 *Translated:*\n{translated}",
-            parse_mode="Markdown"
+            f"📝 *Extracted:*\n{safe_text}\n\n🌐 *Translated:*\n{safe_translated}",
+            parse_mode="MarkdownV2"
         )
     except Exception:
         logging.exception("Photo handler failed for user %s", user.id)
