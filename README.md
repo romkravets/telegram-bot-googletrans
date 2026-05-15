@@ -16,27 +16,38 @@ Public Telegram bot that translates text, forwarded posts, and photos (OCR).
 ## Local development
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# Fill in BOT_TOKEN and DEEPL_API_KEY
-python bot.py
+# Fill in BOT_TOKEN and DEEPL_API_KEY in .env
+python3 bot.py
 ```
 
 ## VPS deployment (Ubuntu/Debian)
 
 ```bash
-# 1. Install Tesseract
+# 1. Install Node.js + PM2 (if not already installed)
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo npm install -g pm2
+
+# 2. Install Tesseract with language packs
+# Add more tesseract-ocr-* packages for additional languages
 sudo apt install tesseract-ocr tesseract-ocr-ukr tesseract-ocr-deu \
   tesseract-ocr-fra tesseract-ocr-spa tesseract-ocr-pol tesseract-ocr-chi-sim
 
-# 2. Clone and setup
+# 3. Clone and setup
 git clone https://github.com/romkravets/telegram-bot-googletrans /opt/translate-bot
 cd /opt/translate-bot
-pip3 install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 cp .env.example .env && nano .env
 
-# 3. Start with PM2
+# 4. Start with PM2 and enable auto-start on reboot
 pm2 start ecosystem.config.js
+pm2 startup systemd
 pm2 save
 ```
 
@@ -46,6 +57,7 @@ pm2 save
 pm2 logs translate-bot     # view logs
 pm2 restart translate-bot  # restart
 pm2 stop translate-bot     # stop
+pm2 list                   # show all running bots
 ```
 
 ## Environment variables
