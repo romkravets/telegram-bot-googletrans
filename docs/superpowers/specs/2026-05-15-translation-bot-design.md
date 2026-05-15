@@ -177,6 +177,12 @@ DB_PATH=./data/translate_bot.db
 
 ---
 
+## Developer
+
+**Roman Kravets** — [@romkravets](https://github.com/romkravets)
+
+---
+
 ## Out of Scope (v1)
 
 - Audio/video translation
