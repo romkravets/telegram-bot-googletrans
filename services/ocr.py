@@ -1,0 +1,12 @@
+from typing import Optional
+import pytesseract
+from PIL import Image
+
+
+def extract_text(image_path: str) -> Optional[str]:
+    try:
+        img = Image.open(image_path)
+        text = pytesseract.image_to_string(img).strip()
+        return text if text else None
+    except Exception:
+        return None
