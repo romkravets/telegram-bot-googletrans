@@ -3,7 +3,7 @@ import sys
 from config import BOT_TOKEN, DEEPL_API_KEY, DB_PATH
 from telegram.ext import (
     Application, CommandHandler, MessageHandler,
-    CallbackQueryHandler, ContextTypes, filters
+    CallbackQueryHandler, InlineQueryHandler, ContextTypes, filters
 )
 
 logging.basicConfig(
@@ -18,6 +18,7 @@ from db.storage import init_db
 from handlers.start import start_command, lang_command, help_command, language_callback
 from handlers.translate import translate_text_handler, forwarded_message_handler
 from handlers.photo import photo_handler
+from handlers.inline import inline_query_handler
 
 
 async def _error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -47,9 +48,10 @@ def main() -> None:
     app.add_handler(MessageHandler(filters.FORWARDED & ~filters.PHOTO, forwarded_message_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, translate_text_handler))
     app.add_handler(MessageHandler(filters.PHOTO, photo_handler))
+    app.add_handler(InlineQueryHandler(inline_query_handler))
 
     logging.info("Bot started. Polling...")
-    app.run_polling(allowed_updates=["message", "callback_query"])
+    app.run_polling(allowed_updates=["message", "callback_query", "inline_query"])
 
 
 if __name__ == "__main__":
