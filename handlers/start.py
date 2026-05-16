@@ -1,10 +1,8 @@
-import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from db.storage import get_language, set_language
 from languages import LANGUAGES, TOP_10_CODES, search_language
-
-DB_PATH = os.getenv("DB_PATH", "./data/translate_bot.db")
+from config import DB_PATH
 
 
 def _language_keyboard() -> InlineKeyboardMarkup:
@@ -61,14 +59,14 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "• Send any text → I translate it\n"
         "• Forward a post → I translate it\n"
         "• Send a photo with text → I read and translate it\n"
-        "• In groups: mention me `@bot_name your text`\n\n"
+        "• In groups: mention me `@bot_name` with your text\n\n"
         "⚙️ *Commands:*\n"
         "/start — choose language\n"
         "/lang — change language\n"
         "/lang Polish — set language directly\n"
         "/help — this message\n\n"
-        "👨‍💻 [github.com/romkravets](https://github.com/romkravets)",
-        parse_mode="Markdown"
+        "👨‍💻 [github\\.com/romkravets](https://github.com/romkravets)",
+        parse_mode="MarkdownV2"
     )
 
 
@@ -83,7 +81,7 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     if query.data == "lang:search":
         await query.edit_message_text(
             "Type the language name:\n`/lang Arabic` or `/lang Hindi`",
-            parse_mode="Markdown"
+            parse_mode="MarkdownV2"
         )
         return
 

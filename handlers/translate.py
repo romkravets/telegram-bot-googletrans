@@ -1,12 +1,11 @@
+import asyncio
 import logging
-import os
 from telegram import Update
 from telegram.ext import ContextTypes
 from db.storage import get_language
 from languages import LANGUAGES
 from services.translator import translate
-
-DB_PATH = os.getenv("DB_PATH", "./data/translate_bot.db")
+from config import DB_PATH
 
 
 async def translate_text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -28,11 +27,11 @@ async def translate_text_handler(update: Update, context: ContextTypes.DEFAULT_T
         if not text:
             return
 
-    lang_code = get_language(user.id, DB_PATH)
+    lang_code = await asyncio.to_thread(get_language, user.id, DB_PATH)
     lang_info = LANGUAGES.get(lang_code, LANGUAGES["en"])
 
     try:
-        translated = translate(text, lang_info)
+        translated = await asyncio.to_thread(translate, text, lang_info)
         await update.message.reply_text(f"🌐 {translated}")
     except Exception:
         logging.exception("Translation failed for user %s", user.id)
@@ -47,16 +46,24 @@ async def forwarded_message_handler(update: Update, context: ContextTypes.DEFAUL
     if not user:
         return
 
+    # In groups only respond when the bot is explicitly mentioned
+    chat_type = update.message.chat.type
+    if chat_type in ("group", "supergroup"):
+        bot_username = context.bot.username
+        combined = (update.message.text or "") + (update.message.caption or "")
+        if not bot_username or f"@{bot_username}" not in combined:
+            return
+
     text = update.message.text or update.message.caption
     if not text:
         await update.message.reply_text("⚠️ No text found in the forwarded message.")
         return
 
-    lang_code = get_language(user.id, DB_PATH)
+    lang_code = await asyncio.to_thread(get_language, user.id, DB_PATH)
     lang_info = LANGUAGES.get(lang_code, LANGUAGES["en"])
 
     try:
-        translated = translate(text, lang_info)
+        translated = await asyncio.to_thread(translate, text, lang_info)
         await update.message.reply_text(f"🌐 {translated}")
     except Exception:
         logging.exception("Translation failed for user %s", user.id)
